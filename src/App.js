@@ -1,23 +1,46 @@
-import logo from './logo.svg';
-import './App.css';
+import { useRef } from "react";
+import "./App.css";
+import { useGetTodos, usePostTodo } from "./services";
+import TodoItem from "./TodoItem";
 
 function App() {
+  const inputRef = useRef();
+  const { todos, isLoading, isError, error } = useGetTodos();
+  const {
+    isCreating,
+    isSuccessCreating,
+    isErrorCreating,
+    errorCreateing,
+    CreateTodo,
+  } = usePostTodo();
+
+  if (isSuccessCreating) inputRef.current.value = "";
+
+  const handleAddTodo = () => {
+    const data = {
+      todoName: inputRef.current.value,
+      isComplete: false,
+    };
+
+    CreateTodo(data);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h2>TODO APP</h2>
+      <div className="input-form">
+        <span>
+          <input type="text" ref={inputRef} />
+          <button onClick={handleAddTodo}>Add Todo</button>
+        </span>
+        {isErrorCreating && <p>{errorCreateing.message}</p>}
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p>{error.message}</p>}
+      <div className="content-container">
+        {todos && todos.map((todo, i) => <TodoItem key={i} {...todo} />)}
+      </div>
+      {isCreating && <p>Loading..</p>}
     </div>
   );
 }
